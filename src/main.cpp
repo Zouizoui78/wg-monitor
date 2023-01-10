@@ -3,6 +3,8 @@
 
 #include "http.hpp"
 
+#define DEFAULT_PORT 4000
+
 std::function<void (int signal)> handler;
 void signal_handler_caller(int signal) {
     std::cout << "\nReceived signal " << strsignal(signal) << std::endl;
@@ -15,7 +17,7 @@ int main(int argc, char **argv) {
     signal(SIGKILL, signal_handler_caller);
 
     std::string addr("0.0.0.0");
-    uint16_t port = 3000;
+    uint16_t port = DEFAULT_PORT;
 
     if (argc == 2) {
         port = std::stoul(argv[1]);
