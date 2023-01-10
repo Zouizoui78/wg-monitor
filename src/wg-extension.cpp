@@ -51,9 +51,6 @@ json device_to_json(wg_device *device) {
     wg_key_to_base64(key, device->public_key);
     ret["public_key"] = key;
 
-    wg_key_to_base64(key, device->private_key);
-    ret["private_key"] = key;
-
     ret["peers"] = std::vector<json>();
     wg_peer *peer;
     wg_for_each_peer(device, peer) {
