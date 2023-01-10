@@ -42,3 +42,10 @@ target_link_libraries(
     PRIVATE httplib
     PRIVATE wireguard
 )
+
+add_custom_target(
+    dist
+    COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/cmake/dist.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${PROJECT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)

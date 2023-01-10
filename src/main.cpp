@@ -10,6 +10,10 @@ void signal_handler_caller(int signal) {
 }
 
 int main(int argc, char **argv) {
+    signal(SIGINT, signal_handler_caller);
+    signal(SIGTERM, signal_handler_caller);
+    signal(SIGKILL, signal_handler_caller);
+
     std::string addr("0.0.0.0");
     uint16_t port = 3000;
 
@@ -23,7 +27,6 @@ int main(int argc, char **argv) {
         std::cout << "Stopping server..." << std::endl;
         http_server.stop();
     };
-    signal(SIGINT, signal_handler_caller);
 
     std::cout << "Starting server on " << addr << ":" << port << std::endl;
     bool server_status = http_server.listen(addr, port);
