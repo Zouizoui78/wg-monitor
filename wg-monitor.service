@@ -1,0 +1,9 @@
+[Unit]
+Description=Wireguard monitoring server
+
+[Service]
+ExecStart=/opt/wg-monitor/wg-monitor
+WorkingDirectory=/opt/wg-monitor
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,1 @@
+g++ *.cpp -o wg-monitor -O3 -s -Iextlib/include -Lextlib/lib -lwireguard -lhttplib
