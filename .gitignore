@@ -86,3 +86,7 @@ dkms.conf
 *.out
 *.app
 
+.vscode
+build
+dist
+extlib
