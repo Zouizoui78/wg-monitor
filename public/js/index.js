@@ -13,7 +13,8 @@ function get_devices() {
     ajax.get(
         "/api/device",
         null,
-        get_devices_success
+        get_devices_success,
+        get_devices_error
     );
 }
 
