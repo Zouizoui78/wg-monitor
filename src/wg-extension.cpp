@@ -76,9 +76,6 @@ json peer_to_json(wg_peer *peer) {
     wg_key_to_base64(key, peer->public_key);
     ret["public_key"] = key;
 
-    wg_key_to_base64(key, peer->preshared_key);
-    ret["preshared_key"] = key;
-
     ret["allowed_ips"] = json();
     wg_allowedip *allowed_ip = nullptr;
     wg_for_each_allowedip(peer, allowed_ip) {
