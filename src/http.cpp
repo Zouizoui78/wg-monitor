@@ -2,8 +2,6 @@
 #include "json.hpp"
 #include "wg-extension.hpp"
 
-#include <iostream>
-
 using namespace std::placeholders;
 using json = nlohmann::json;
 
@@ -14,8 +12,6 @@ HTTPServer::HTTPServer() : httplib::Server() {
     register_handlers();
     this->set_mount_point("/", "./public");
 }
-
-HTTPServer::~HTTPServer() {}
 
 void HTTPServer::register_handlers() {
     // We go from the most specific to the less specific route
@@ -39,7 +35,6 @@ void HTTPServer::get_devices(const httplib::Request &req, httplib::Response &res
     for (std::string_view device_name : device_names) {
         json device_json = wg::get_device_json(device_name);
         if (device_json.empty()) {
-            std::cout << "Failed to get device " << device_name << std::endl;
             continue;
         }
         devices[device_name] = device_json;

@@ -6,7 +6,6 @@
 class HTTPServer : public httplib::Server {
     public:
     HTTPServer();
-    ~HTTPServer();
 
     private:
     void register_handlers();
