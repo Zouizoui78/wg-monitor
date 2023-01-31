@@ -11,7 +11,7 @@ function remove_dom_node_children(node) {
 
 function get_devices() {
     ajax.get(
-        "/api/device",
+        "/api/devices",
         null,
         get_devices_success,
         get_devices_error

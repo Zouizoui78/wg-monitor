@@ -16,10 +16,14 @@ HTTPServer::HTTPServer() : httplib::Server() {
 void HTTPServer::register_handlers() {
     // We go from the most specific to the less specific route
     // otherwise less specific can match instead of more specific
-    REGISTER_HANDLER(R"(/api/device/(.+)/peers)", get_peers);
-    REGISTER_HANDLER(R"(/api/device/(.+))", get_device);
-    REGISTER_HANDLER("/api/device", get_devices);
+    REGISTER_HANDLER(R"(/api/devices/(.+)/peers)", get_device_peers);
+    REGISTER_HANDLER(R"(/api/devices/(.+))", get_device);
+    REGISTER_HANDLER("/api/devices", get_devices);
     REGISTER_HANDLER("/api/devicenames", get_device_names);
+
+#ifdef DEBUG
+    set_pre_routing_handler(std::bind(&HTTPServer::pre_routing, this, _1, _2));
+#endif
 }
 
 void HTTPServer::get_device_names(const httplib::Request &req, httplib::Response &res) {
@@ -49,8 +53,13 @@ void HTTPServer::get_device(const httplib::Request &req, httplib::Response &res)
     res.set_content(device_json.dump(), "application/json");
 }
 
-void HTTPServer::get_peers(const httplib::Request &req, httplib::Response &res) {
+void HTTPServer::get_device_peers(const httplib::Request &req, httplib::Response &res) {
     std::string device_name = req.matches[1];
     json device_json = wg::get_device_json(device_name);
     res.set_content(device_json["peers"].dump(), "application/json");
+}
+
+httplib::Server::HandlerResponse HTTPServer::pre_routing(const httplib::Request &req, httplib::Response &res) {
+    std::cout << req.method << " " << req.path << std::endl;
+    return HandlerResponse::Unhandled;
 }

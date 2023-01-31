@@ -14,7 +14,9 @@ class HTTPServer : public httplib::Server {
     void get_device_names(const httplib::Request &req, httplib::Response &res);
     void get_devices(const httplib::Request &req, httplib::Response &res);
     void get_device(const httplib::Request &req, httplib::Response &res);
-    void get_peers(const httplib::Request &req, httplib::Response &res);
+    void get_device_peers(const httplib::Request &req, httplib::Response &res);
+
+    httplib::Server::HandlerResponse pre_routing(const httplib::Request &req, httplib::Response &res);
 };
 
 #endif // HTTP_SERVER_HPP
