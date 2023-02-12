@@ -33,8 +33,8 @@ int main(int argc, char **argv) {
     HTTPServer http_server;
     handler = [&http_server](int signal) {
         SPDLOG_INFO("Received signal {}", strsignal(signal));
-        SPDLOG_INFO("Stopping server...");
         http_server.stop();
+        SPDLOG_INFO("Stopped http server");
     };
 
     SPDLOG_INFO("Starting server on {}:{}", addr, port);
