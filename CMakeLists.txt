@@ -21,6 +21,7 @@ set(
     SRC
     src/main.cpp
     src/http.cpp
+    src/log.cpp
     src/wg-extension.cpp
 )
 
@@ -39,7 +40,9 @@ target_link_directories(
 
 target_link_libraries(
     ${PROJECT}
+    PRIVATE fmt
     PRIVATE httplib
+    PRIVATE spdlog
     PRIVATE wireguard
 )
 
