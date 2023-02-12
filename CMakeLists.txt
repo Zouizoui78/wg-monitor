@@ -20,8 +20,9 @@ add_compile_options($<$<CONFIG:Debug>:-DDEBUG>$<$<CONFIG:Release>:-DRELEASE>)
 set(
     SRC
     src/main.cpp
-    src/http.cpp
+    src/HTTPServer.cpp
     src/log.cpp
+    src/Monitor.cpp
     src/wg-extension.cpp
 )
 

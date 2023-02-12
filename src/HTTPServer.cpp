@@ -1,12 +1,10 @@
-#include "filesystem"
-#include "http.hpp"
+#include "HTTPServer.hpp"
 #include "json.hpp"
 #include "log.hpp"
 #include "wg-extension.hpp"
 
 using namespace std::placeholders;
 using json = nlohmann::json;
-namespace fs = std::filesystem;
 
 #define REGISTER_HANDLER(__route, __handler) \
 this->Get(__route, std::bind(&HTTPServer::__handler, this, _1, _2));
@@ -14,11 +12,6 @@ this->Get(__route, std::bind(&HTTPServer::__handler, this, _1, _2));
 HTTPServer::HTTPServer() : httplib::Server() {
     register_handlers();
     this->set_mount_point("/", "./public");
-    _is_ok = parse_hooks();
-}
-
-bool HTTPServer::is_ok() {
-    return _is_ok;
 }
 
 void HTTPServer::register_handlers() {
@@ -70,33 +63,4 @@ void HTTPServer::get_device_peers(const httplib::Request &req, httplib::Response
 httplib::Server::HandlerResponse HTTPServer::pre_routing(const httplib::Request &req, httplib::Response &res) {
     SPDLOG_DEBUG("{} {}", req.method, req.path);
     return HandlerResponse::Unhandled;
-}
-
-bool HTTPServer::parse_hooks() {
-    std::string path("hooks.json");
-
-    if (!fs::exists(path)) {
-        SPDLOG_INFO("{} doesn't exist, considering hooks parsing done", path);
-        return true;
-    }
-
-    std::ifstream in(path);
-    if (!in.is_open()) {
-        SPDLOG_ERROR("Failed to open {}", path);
-        return false;
-    }
-
-    json parsed;
-    try {
-        parsed = nlohmann::json::parse(in);
-    }
-    catch (...) {
-        SPDLOG_ERROR("Failed to parse hooks, json error");
-        return false;
-    }
-
-    _hooks = parsed;
-    SPDLOG_INFO("Parsed hooks :\n{}", parsed.dump(4));
-
-    return true;
 }

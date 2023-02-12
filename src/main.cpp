@@ -1,14 +1,14 @@
 #include <iostream>
 #include <csignal>
 
-#include "http.hpp"
+#include "HTTPServer.hpp"
 #include "log.hpp"
+#include "Monitor.hpp"
 
 #define DEFAULT_PORT 4000
 
 std::function<void (int signal)> handler;
 void signal_handler_caller(int signal) {
-    SPDLOG_INFO("Received signal {}", strsignal(signal));
     handler(signal);
 }
 
@@ -17,7 +17,6 @@ int main(int argc, char **argv) {
 
     signal(SIGINT, signal_handler_caller);
     signal(SIGTERM, signal_handler_caller);
-    signal(SIGKILL, signal_handler_caller);
 
     std::string addr("0.0.0.0");
     uint16_t port = DEFAULT_PORT;
@@ -26,12 +25,14 @@ int main(int argc, char **argv) {
         port = std::stoul(argv[1]);
     }
 
-    HTTPServer http_server;
-    if (!http_server.is_ok()) {
+    wg::Monitor monitor;
+    if (!monitor.is_ok()) {
         return 1;
     }
 
+    HTTPServer http_server;
     handler = [&http_server](int signal) {
+        SPDLOG_INFO("Received signal {}", strsignal(signal));
         SPDLOG_INFO("Stopping server...");
         http_server.stop();
     };
