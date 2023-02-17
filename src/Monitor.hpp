@@ -6,6 +6,8 @@
 
 namespace wg {
 
+using HooksVector = std::vector<std::shared_ptr<Hook>>;
+
 class Monitor {
     public:
     Monitor();
@@ -24,13 +26,14 @@ class Monitor {
     // hooks
     bool process_devices(const WGDeviceMap& devices);
     bool process_device(const wg::Device &device, const wg::Device &previous_device);
-    bool process_peer(const wg::Peer &peer, const wg::Peer &previous_peer);
+    bool process_peer(const wg::Device &device, const wg::Peer &peer, const wg::Peer &previous_peer);
 
-    void handshake_hook_impl(const Peer &peer);
+    void handshake_hook_impl(const wg::Device &device, const Peer &peer);
 
     bool parse_hooks();
-    std::vector<Hook> get_hooks_by_events(HookEvents events);
-    std::vector<Hook> _hooks;
+
+    HooksVector get_hooks_by_events(HookEvents events);
+    HooksVector _hooks;
 
     // background monitoring
     std::atomic<bool> _running = false;

@@ -4,8 +4,8 @@ set(PROJECT wg-monitor)
 project(${PROJECT} VERSION 0.0.1)
 
 # C++ variables
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # OS defines used inside code
 if (WIN32)
@@ -20,9 +20,11 @@ add_compile_options($<$<CONFIG:Debug>:-DDEBUG>$<$<CONFIG:Release>:-DRELEASE>)
 set(
     SRC
     src/main.cpp
+    src/Hook.cpp
     src/HTTPServer.cpp
     src/log.cpp
     src/Monitor.cpp
+    src/tools.cpp
     src/wg-extension.cpp
 )
 

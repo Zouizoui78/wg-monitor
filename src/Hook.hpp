@@ -5,10 +5,6 @@
 #include <string>
 #include "wg-extension.hpp"
 
-enum HookType {
-    WEBHOOK
-};
-
 enum HookEvents {
     PEER_HANDSHAKE = 0b1,
     PEER_CONNECTION_LOST = 0b10,
@@ -16,15 +12,44 @@ enum HookEvents {
     PEER_ADDED = 0b1000
 };
 
+/**
+ * Hook structure
+ * Variables : PeerIP, DeviceName
+ */
 struct Hook {
-    uint8_t type = WEBHOOK;
     uint8_t events = 0;
-    std::string url{""};
     std::string pattern{""};
 
-    bool run(const wg::Device &device, const wg::Peer &peer);
+    [[nodiscard]]
+    virtual bool run(const wg::Device &device, const wg::Peer &peer) const = 0;
+
+    [[nodiscard]]
+    static std::shared_ptr<Hook> factory(std::string_view type);
+
+    [[nodiscard]]
+    static std::shared_ptr<Hook> factory(const nlohmann::json& json);
+
+protected:
+    static std::vector<std::string> variables;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Hook, type, events, url, pattern);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Hook, events, pattern);
+
+struct Webhook : Hook {
+    std::string host { "" };
+    std::string url { "" };
+
+    [[nodiscard]]
+    virtual bool run(const wg::Device &device, const wg::Peer &peer) const override;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Webhook, events, pattern, host, url);
+
+struct DummyHook : Hook {
+    [[nodiscard]]
+    virtual bool run(const wg::Device &device, const wg::Peer &peer) const override;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DummyHook, events, pattern);
 
 #endif // HOOK_HPP

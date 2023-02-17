@@ -1,6 +1,6 @@
 #include "HTTPServer.hpp"
-#include "json.hpp"
 #include "log.hpp"
+#include "nlohmann/json.hpp"
 #include "wg-extension.hpp"
 
 using namespace std::placeholders;

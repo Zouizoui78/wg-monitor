@@ -58,15 +58,16 @@ void Monitor::monitor() {
         }
         _previous_devices = devices;
         SPDLOG_DEBUG("Monitor loop done");
+    #ifdef DEBUG
         std::this_thread::sleep_for(std::chrono::seconds(5));
+    #else
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    #endif
     }
 }
 
 bool Monitor::process_devices(const WGDeviceMap& devices) {
     bool ok = true;
-
-    SPDLOG_DEBUG("previous = \n{}", json(_previous_devices).dump(4));
-    SPDLOG_DEBUG("current = \n{}", json(devices).dump(4));
 
     for (const auto& [name, device] : devices) {
         auto previous_device_it = _previous_devices.find(name);
@@ -100,7 +101,7 @@ bool Monitor::process_device(const wg::Device &device, const wg::Device &previou
             continue;
         }
 
-        if (!process_peer(peer, *prev_peer)) {
+        if (!process_peer(device, peer, *prev_peer)) {
             SPDLOG_ERROR("Peer {} from device {} processing failed", peer.allowed_ips[0], device.name);
             ok = false;
         }
@@ -108,25 +109,32 @@ bool Monitor::process_device(const wg::Device &device, const wg::Device &previou
     return ok;
 }
 
-bool Monitor::process_peer(const wg::Peer &peer, const wg::Peer &previous_peer) {
+bool Monitor::process_peer(const wg::Device &device, const wg::Peer &peer, const wg::Peer &previous_peer) {
     SPDLOG_DEBUG("Processing peer {}", peer.allowed_ips[0]);
 
     int64_t last_handshake_diff = peer.last_handshake - previous_peer.last_handshake;
+#ifdef DEBUG
+    if (last_handshake_diff > 0) {
+#else
     if (last_handshake_diff > 300) { // 5min
-        handshake_hook_impl(peer);
+#endif
+        handshake_hook_impl(device, peer);
     }
 
     return true;
 }
 
-void Monitor::handshake_hook_impl(const Peer &peer) {
+void Monitor::handshake_hook_impl(const wg::Device &device, const Peer &peer) {
     SPDLOG_DEBUG("Handshake event for peer {}", peer.allowed_ips[0]);
+    for (const auto& hook : get_hooks_by_events(HookEvents::PEER_HANDSHAKE)) {
+        hook->run(device, peer);
+    }
 }
 
-std::vector<Hook> Monitor::get_hooks_by_events(HookEvents events) {
-    std::vector<Hook> ret;
+HooksVector Monitor::get_hooks_by_events(HookEvents events) {
+    HooksVector ret;
     for (const auto &hook : _hooks) {
-        if (hook.events & events) {
+        if (hook->events & events) {
             ret.push_back(hook);
         }
     }
@@ -156,8 +164,15 @@ bool Monitor::parse_hooks() {
         return false;
     }
 
-    _hooks = parsed;
+    if (!parsed.is_array()) {
+        SPDLOG_ERROR("hooks.json must be an array");
+    }
+
     SPDLOG_INFO("Parsed hooks :\n{}", parsed.dump(4));
+
+    for (const auto &hook_json : parsed) {
+        _hooks.push_back(Hook::factory(hook_json));
+    }
 
     return true;
 }
