@@ -125,7 +125,7 @@ bool Monitor::process_peer(const wg::Device &device, const wg::Peer &peer, const
 }
 
 void Monitor::handshake_hook_impl(const wg::Device &device, const Peer &peer) {
-    SPDLOG_DEBUG("Handshake event for peer {}", peer.allowed_ips[0]);
+    SPDLOG_INFO("Handshake event for peer {}", peer.allowed_ips[0]);
     for (const auto& hook : get_hooks_by_events(HookEvents::PEER_HANDSHAKE)) {
         hook->run(device, peer);
     }

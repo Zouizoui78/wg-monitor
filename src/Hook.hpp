@@ -18,7 +18,7 @@ enum HookEvents {
  */
 struct Hook {
     uint8_t events = 0;
-    std::string pattern{""};
+    nlohmann::json pattern{""};
 
     [[nodiscard]]
     virtual bool run(const wg::Device &device, const wg::Peer &peer) const = 0;
@@ -31,9 +31,11 @@ struct Hook {
 
 protected:
     static std::vector<std::string> variables;
-};
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Hook, events, pattern);
+    void compile_pattern();
+    std::string format(const wg::Device &device, const wg::Peer &peer) const;
+    std::string _compiled_pattern { "" };
+};
 
 struct Webhook : Hook {
     std::string host { "" };
