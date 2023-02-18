@@ -50,6 +50,7 @@ bool Webhook::run(const wg::Device &device, const wg::Peer &peer) const {
     );
     SPDLOG_DEBUG("Formatted pattern = {}", formatted_pattern);
     httplib::Client client(host);
+    client.Post(url, formatted_pattern, "application/json");
     return true;
 }
 
