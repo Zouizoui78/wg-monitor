@@ -11,7 +11,7 @@ this->Get(__route, std::bind(&HTTPServer::__handler, this, _1, _2));
 
 HTTPServer::HTTPServer() : httplib::Server() {
     register_handlers();
-    this->set_mount_point("/", "./public");
+    this->set_mount_point("/", "./www");
 }
 
 void HTTPServer::register_handlers() {
