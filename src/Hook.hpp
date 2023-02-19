@@ -18,7 +18,8 @@ enum HookEvents {
  */
 struct Hook {
     uint8_t events = 0;
-    nlohmann::json pattern{""};
+    nlohmann::json pattern {};
+    nlohmann::json exclude {};
 
     [[nodiscard]]
     virtual bool run(const wg::Device &device, const wg::Peer &peer) const = 0;
@@ -45,13 +46,22 @@ struct Webhook : Hook {
     virtual bool run(const wg::Device &device, const wg::Peer &peer) const override;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Webhook, events, pattern, host, url);
-
 struct DummyHook : Hook {
     [[nodiscard]]
     virtual bool run(const wg::Device &device, const wg::Peer &peer) const override;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DummyHook, events, pattern);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Hook, events, pattern, exclude);
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
+    Webhook,
+    events,
+    pattern,
+    exclude,
+    host,
+    url
+);
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DummyHook, events, pattern, exclude);
 
 #endif // HOOK_HPP

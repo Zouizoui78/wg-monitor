@@ -28,11 +28,13 @@ class Monitor {
     bool process_device(const wg::Device &device, const wg::Device &previous_device);
     bool process_peer(const wg::Device &device, const wg::Peer &peer, const wg::Peer &previous_peer);
 
-    void handshake_hook_impl(const wg::Device &device, const Peer &peer);
-
     bool parse_hooks();
 
-    HooksVector get_hooks_by_events(HookEvents events);
+    void hook(HookEvents events, const wg::Device &device, const wg::Peer &peer);
+    HooksVector get_relevant_hooks(HookEvents events, const wg::Device &device, const wg::Peer &peer) const;
+    HooksVector get_hooks_by_events(HookEvents events) const;
+    bool check_hook_exclude(std::shared_ptr<Hook> hook, std::string_view key_name, std::string_view parameter) const;
+
     HooksVector _hooks;
 
     // background monitoring

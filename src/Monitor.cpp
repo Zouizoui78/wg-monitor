@@ -3,6 +3,9 @@
 #include "log.hpp"
 #include "Monitor.hpp"
 #include "nlohmann/json.hpp"
+#include "tools.hpp"
+
+#define CONNECTION_LOST_DELAY_S 300
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
@@ -116,22 +119,39 @@ bool Monitor::process_peer(const wg::Device &device, const wg::Peer &peer, const
 #ifdef DEBUG
     if (last_handshake_diff > 0) {
 #else
-    if (last_handshake_diff > 300) { // 5min
+    if (last_handshake_diff >= CONNECTION_LOST_DELAY_S) { // 5min
 #endif
-        handshake_hook_impl(device, peer);
+        SPDLOG_INFO("Handshake event for peer {}", peer.allowed_ips[0]);
+        hook(HookEvents::PEER_HANDSHAKE, device, peer);
     }
 
     return true;
 }
 
-void Monitor::handshake_hook_impl(const wg::Device &device, const Peer &peer) {
-    SPDLOG_INFO("Handshake event for peer {}", peer.allowed_ips[0]);
-    for (const auto& hook : get_hooks_by_events(HookEvents::PEER_HANDSHAKE)) {
+void Monitor::hook(HookEvents event, const wg::Device &device, const Peer &peer) {
+    auto hooks = get_relevant_hooks(event, device, peer);
+    for (const auto &hook : hooks) {
         hook->run(device, peer);
     }
 }
 
-HooksVector Monitor::get_hooks_by_events(HookEvents events) {
+HooksVector Monitor::get_relevant_hooks(HookEvents events, const wg::Device &device, const wg::Peer &peer) const {
+    HooksVector hooks = get_hooks_by_events(events);
+    for (auto it = hooks.begin() ; it != hooks.end() ; ) {
+        bool remove = false;
+        remove = check_hook_exclude(*it, "PeerIP", peer.allowed_ips[0]);
+        remove = remove || check_hook_exclude(*it, "DeviceName", device.name);
+        if (remove) {
+            it = hooks.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    return hooks;
+}
+
+HooksVector Monitor::get_hooks_by_events(HookEvents events) const {
     HooksVector ret;
     for (const auto &hook : _hooks) {
         if (hook->events & events) {
@@ -139,6 +159,25 @@ HooksVector Monitor::get_hooks_by_events(HookEvents events) {
         }
     }
     return ret;
+}
+
+bool Monitor::check_hook_exclude(std::shared_ptr<Hook> hook, std::string_view key_name, std::string_view parameter) const {
+    if (hook->exclude.is_null()) {
+        return false;
+    }
+
+    if (hook->exclude.contains(key_name)) {
+        auto find_it = std::find(
+            hook->exclude[key_name].begin(),
+            hook->exclude[key_name].end(),
+            parameter
+        );
+        if (find_it != hook->exclude[key_name].end()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool Monitor::parse_hooks() {
