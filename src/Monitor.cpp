@@ -121,7 +121,7 @@ bool Monitor::process_peer(const wg::Device &device, const wg::Peer &peer, const
 #else
     if (last_handshake_diff >= CONNECTION_LOST_DELAY_S) { // 5min
 #endif
-        SPDLOG_INFO("Handshake event for peer {}", peer.allowed_ips[0]);
+        SPDLOG_DEBUG("Handshake event for peer {}", peer.allowed_ips[0]);
         hook(HookEvents::PEER_HANDSHAKE, device, peer);
     }
 
@@ -129,19 +129,16 @@ bool Monitor::process_peer(const wg::Device &device, const wg::Peer &peer, const
 }
 
 void Monitor::hook(HookEvents event, const wg::Device &device, const Peer &peer) {
-    auto hooks = get_relevant_hooks(event, device, peer);
+    auto hooks = get_not_excluded_hooks(event, device, peer);
     for (const auto &hook : hooks) {
         hook->run(device, peer);
     }
 }
 
-HooksVector Monitor::get_relevant_hooks(HookEvents events, const wg::Device &device, const wg::Peer &peer) const {
+HooksVector Monitor::get_not_excluded_hooks(HookEvents events, const wg::Device &device, const wg::Peer &peer) const {
     HooksVector hooks = get_hooks_by_events(events);
     for (auto it = hooks.begin() ; it != hooks.end() ; ) {
-        bool remove = false;
-        remove = check_hook_exclude(*it, "PeerIP", peer.allowed_ips[0]);
-        remove = remove || check_hook_exclude(*it, "DeviceName", device.name);
-        if (remove) {
+        if ((*it)->is_excluded(device, peer)) {
             it = hooks.erase(it);
         }
         else {
@@ -184,7 +181,7 @@ bool Monitor::parse_hooks() {
     std::string path("hooks.json");
 
     if (!fs::exists(path)) {
-        SPDLOG_INFO("{} doesn't exist, considering hooks parsing done", path);
+        SPDLOG_INFO("{} doesn't exist, no hook parsed", path);
         return true;
     }
 
@@ -207,7 +204,7 @@ bool Monitor::parse_hooks() {
         SPDLOG_ERROR("hooks.json must be an array");
     }
 
-    SPDLOG_INFO("Parsed hooks :\n{}", parsed.dump(4));
+    SPDLOG_DEBUG("Parsed hooks :\n{}", parsed.dump(2));
 
     for (const auto &hook_json : parsed) {
         _hooks.push_back(Hook::factory(hook_json));

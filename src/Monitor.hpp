@@ -31,7 +31,7 @@ class Monitor {
     bool parse_hooks();
 
     void hook(HookEvents events, const wg::Device &device, const wg::Peer &peer);
-    HooksVector get_relevant_hooks(HookEvents events, const wg::Device &device, const wg::Peer &peer) const;
+    HooksVector get_not_excluded_hooks(HookEvents events, const wg::Device &device, const wg::Peer &peer) const;
     HooksVector get_hooks_by_events(HookEvents events) const;
     bool check_hook_exclude(std::shared_ptr<Hook> hook, std::string_view key_name, std::string_view parameter) const;
 

@@ -25,6 +25,9 @@ struct Hook {
     virtual bool run(const wg::Device &device, const wg::Peer &peer) const = 0;
 
     [[nodiscard]]
+    bool is_excluded(const wg::Device &device, const wg::Peer &peer);
+
+    [[nodiscard]]
     static std::shared_ptr<Hook> factory(std::string_view type);
 
     [[nodiscard]]
@@ -34,6 +37,11 @@ protected:
     static std::vector<std::string> variables;
 
     void compile_pattern();
+
+    [[nodiscard]]
+    bool check_exclude(std::string_view variable_name, std::string_view value);
+
+    [[nodiscard]]
     std::string format(const wg::Device &device, const wg::Peer &peer) const;
     std::string _compiled_pattern { "" };
 };
