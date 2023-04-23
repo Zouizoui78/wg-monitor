@@ -6,8 +6,8 @@
 using namespace std::placeholders;
 using json = nlohmann::json;
 
-#define REGISTER_HANDLER(__route, __handler) \
-this->Get(__route, std::bind(&HTTPServer::__handler, this, _1, _2));
+#define GET(__route, __handler) \
+    this->Get(__route, std::bind(&HTTPServer::__handler, this, _1, _2));
 
 HTTPServer::HTTPServer() : httplib::Server() {
     register_handlers();
@@ -17,10 +17,10 @@ HTTPServer::HTTPServer() : httplib::Server() {
 void HTTPServer::register_handlers() {
     // We go from the most specific to the less specific route
     // otherwise less specific can match instead of more specific
-    REGISTER_HANDLER(R"(/api/devices/(.+)/peers)", get_device_peers);
-    REGISTER_HANDLER(R"(/api/devices/(.+))", get_device);
-    REGISTER_HANDLER("/api/devices", get_devices);
-    REGISTER_HANDLER("/api/devicenames", get_device_names);
+    GET(R"(/api/devices/(.+)/peers)", get_device_peers);
+    GET(R"(/api/devices/(.+))", get_device);
+    GET("/api/devices", get_devices);
+    GET("/api/devicenames", get_device_names);
 
 #ifdef DEBUG
     set_pre_routing_handler(std::bind(&HTTPServer::pre_routing, this, _1, _2));
