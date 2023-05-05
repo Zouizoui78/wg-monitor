@@ -158,25 +158,6 @@ HooksVector Monitor::get_hooks_by_events(HookEvents events) const {
     return ret;
 }
 
-bool Monitor::check_hook_exclude(std::shared_ptr<Hook> hook, std::string_view key_name, std::string_view parameter) const {
-    if (hook->exclude.is_null()) {
-        return false;
-    }
-
-    if (hook->exclude.contains(key_name)) {
-        auto find_it = std::find(
-            hook->exclude[key_name].begin(),
-            hook->exclude[key_name].end(),
-            parameter
-        );
-        if (find_it != hook->exclude[key_name].end()) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool Monitor::parse_hooks() {
     std::string path("hooks.json");
 

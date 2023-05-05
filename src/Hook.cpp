@@ -63,18 +63,17 @@ bool Hook::check_exclude(std::string_view variable_name, std::string_view value)
         return false;
     }
 
-    if (this->exclude.contains(variable_name)) {
-        auto find_it = std::find(
-            this->exclude[variable_name].begin(),
-            this->exclude[variable_name].end(),
-            value
-        );
-        if (find_it != this->exclude[variable_name].end()) {
-            return true;
-        }
+    if (!this->exclude.contains(variable_name)) {
+        return false;
     }
 
-    return false;
+    auto find_it = std::find(
+        this->exclude[variable_name].begin(),
+        this->exclude[variable_name].end(),
+        value
+    );
+
+    return find_it != this->exclude[variable_name].end();
 }
 
 std::string Hook::format(const wg::Device &device, const wg::Peer &peer) const {
