@@ -44,8 +44,13 @@ std::shared_ptr<Hook> Hook::factory(const json& j) {
 
 void Hook::compile_pattern() {
     SPDLOG_DEBUG("Compiling pattern :\n{}", pattern.dump(2));
-    // Add braces around the pattern to escape the json braces
-    _compiled_pattern = "{" + pattern.dump() + "}";
+    // If pattern starts with '{' we consider it's a json object
+    // so we braces around the pattern to escape the json braces
+    _compiled_pattern = pattern.dump();
+    if (_compiled_pattern[0] == '{') {
+        _compiled_pattern = "{" + _compiled_pattern + "}";
+    }
+
     for (int i = 0; const auto &variable : variables) {
         // Replace variables names by strings like {0}, {1}, etc
         // for fmt formatting
