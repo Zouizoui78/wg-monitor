@@ -9,6 +9,7 @@ set(
     src/Monitor.cpp
     src/tools.cpp
     src/wg-extension.cpp
+    external/wireguard/wireguard.c
 )
 
 find_package(spdlog REQUIRED)
@@ -18,7 +19,7 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:-DDEBUG>$<$<CONFIG:Release>:-DRELEASE>)
 
 target_include_directories(
-    ${PROJECT}
+    ${PROJECT_NAME}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/wireguard
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/external/cpp-httplib
@@ -34,6 +35,6 @@ target_link_libraries(
 add_custom_target(
     dist
     COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/cmake/dist.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${PROJECT}
+    DEPENDS ${PROJECT_NAME}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
