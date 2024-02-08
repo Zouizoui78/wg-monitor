@@ -1,6 +1,9 @@
 #ifndef MONITOR_HPP
 #define MONITOR_HPP
 
+#include <atomic>
+#include <thread>
+
 #include "Hook.hpp"
 #include "wg-extension.hpp"
 

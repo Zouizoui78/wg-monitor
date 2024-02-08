@@ -1,5 +1,5 @@
+#include "spdlog/spdlog.h"
 #include "tools.hpp"
-#include "log.hpp"
 
 namespace tools {
 

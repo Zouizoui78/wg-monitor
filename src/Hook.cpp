@@ -1,7 +1,7 @@
 #include "Hook.hpp"
 
 #include "fmt/core.h"
-#include "log.hpp"
+#include "spdlog/spdlog.h"
 #include "tools.hpp"
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT

@@ -1,4 +1,4 @@
-#include "log.hpp"
+#include "spdlog/spdlog.h"
 #include "wg-extension.hpp"
 
 #include <arpa/inet.h> // inet_ntop

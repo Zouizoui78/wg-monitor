@@ -1,8 +1,8 @@
 #include <filesystem>
 #include <fstream>
-#include "log.hpp"
 #include "Monitor.hpp"
 #include "nlohmann/json.hpp"
+#include "spdlog/spdlog.h"
 #include "tools.hpp"
 
 #define CONNECTION_LOST_DELAY_S 300

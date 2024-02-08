@@ -2,7 +2,7 @@
 #include <csignal>
 
 #include "HTTPServer.hpp"
-#include "log.hpp"
+#include "spdlog/spdlog.h"
 #include "Monitor.hpp"
 
 #define DEFAULT_PORT 4000
@@ -13,7 +13,11 @@ void signal_handler_caller(int signal) {
 }
 
 int main(int argc, char **argv) {
-    log_init();
+#ifdef DEBUG
+    spdlog::set_level(spdlog::level::debug);
+#else
+    spdlog::set_pattern("[%l] %v");
+#endif
 
     signal(SIGINT, signal_handler_caller);
     signal(SIGTERM, signal_handler_caller);
